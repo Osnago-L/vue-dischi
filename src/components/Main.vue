@@ -1,8 +1,12 @@
 <template>
   <div class="main">
+    <Select
+    @search="getSearchedArray"
+    :info="artists"
+    ></Select>
     <div class="cards">
     <Cards
-      v-for="element,index in artists"
+      v-for="element,index in test"
       :key="index"
       :info="element"
     />
@@ -13,23 +17,27 @@
 <script>
 import axios from 'axios'
 import Cards from './Cards.vue'
+import Select from './Select.vue';
 
 export default {
     name: "Main",
     components: {
-    Cards
+    Cards,
+    Select
     },
   data () {
     return {
       artists: [],
+      searched:[]
     }
   },
   created: function(){
         axios.get('https://flynn.boolean.careers/exercises/api/array/music')
           .then((result)=> {
             // handle success
-            this.artists = result.data.response;
             console.log(result.data.response);
+            this.artists = result.data.response;
+            this.searched = this.artists
           })
           .catch(function (error) {
             // handle error
@@ -38,7 +46,19 @@ export default {
           .then(function () {
             // always executed
           });
-      }
+  },
+  methods:{
+    getSearchedArray: function(selected){
+        this.searched = this.artists.filter(element =>{
+               return element.genre.includes(selected);
+      });
+    }
+  },
+  computed:{
+    test(){
+      return this.searched
+    }
+  }
 }
 
 </script>
@@ -49,12 +69,15 @@ export default {
   height: calc(100vh - $header-height);
   background-color: #1e2d3b;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+
+
 
   .cards{
   width: 60%;
   height: 80%;
-  padding: 40px 0;
+  padding: 20px 0;
   display: grid;
   gap: 40px;
   grid-template-columns: repeat(5,1fr);
